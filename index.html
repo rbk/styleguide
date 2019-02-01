@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Style Guide</title>
+    <link rel="stylesheet" href="vendor/basscss.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400" rel="stylesheet">
+    <script src="vendor/jquery-3.3.1.min.js"></script>
+    <script src='vendor/spectrum/spectrum.js'></script>
+    <link rel='stylesheet' href='vendor/spectrum/spectrum.css' />
+
+    <!-- https://momentjs.com/ -->
+    <!-- https://www.npmjs.com/package/url-parse -->
+    <!-- https://bgrins.github.io/spectrum/#events-change -->
+    <style type="text/css">
+      body {
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 300;
+      }
+      h1,h2,h3 {
+        font-weight: 300;
+      }
+      .container {
+        max-width: 1024px;
+        margin: 0 auto;
+      }
+      .color {
+        height: 200px;
+        position: relative;
+        margin: 5px;
+      }
+      input[type="color"] {
+        display: none;
+      }
+      .color-info {
+        position: absolute;
+        bottom: -50px;
+        font-variant: small-caps;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="h1">Style Guide</h1>
+      <h2 class="h2">Color</h2>
+      <div class="clearfix">
+        <div class="sm-col sm-col-3">
+          <div class="color">
+            <div class="color-info">
+              <label class="label">Primary</label><br>
+              <label class="hex"></label>
+            </div>
+            <input class="color-input" type='color' name='color1' value='#3355cc' />
+          </div>
+        </div>
+        <div class="sm-col sm-col-3">
+          <div class="color">
+            <div class="color-info">
+              <label class="label">Secondary</label><br>
+              <label class="hex"></label>
+            </div>
+            <input class="color-input" type='color' name='color2' value='#3355cc' />
+          </div>
+        </div>
+        <div class="sm-col sm-col-3">
+          <div class="color">
+            <div class="color-info">
+              <label class="label">Accent</label><br>
+              <label class="hex"></label>
+            </div>
+            <input class="color-input" type='color' name='color3' value='#3355cc' />
+          </div>
+        </div>
+        <div class="sm-col sm-col-3">
+          <div class="color">
+            <div class="color-info">
+              <label class="label">Accent 2</label><br>
+              <label class="hex"></label>
+            </div>
+            <input class="color-input" type='color' name='color4' value='#3355cc' />
+          </div>
+        </div>
+      </div>
+      <br>
+      <br>
+      <br>
+      <br>
+      <h2 class="h2">Typography</h2>
+      <hr>
+      <h1>Heading 1</h1>
+      <h2>Heading 2</h2>
+      <h3>Heading 3</h3>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+    </div>
+    <script type="text/javascript">
+      jQuery(document).ready(function($){
+
+        var colorBoxes = $('.color');
+        var colorInputs = $('input[type="color"]');
+
+        function saveObject(){
+          var urlParams = "?"
+          colorInputs.each(function(){
+            var name = $(this).attr('name')
+            var color = $(this).attr('color')
+            urlParams = urlParams + name + "=" + color + "&"
+          })
+          history.pushState({}, "", urlParams);
+          console.log(urlParams)
+        }
+
+        function setup() {
+          console.log(window.location.href)
+          var url = window.location.href;
+          if (url.match("#")) {
+            var parts = url.split("?")
+            parts = parts[1].split("&")
+            for(var i =0; i < parts.length; i++) {
+              var colorkey = parts[i].split("=")
+              if (colorkey.length > 1) {
+                console.log(colorkey)
+              }
+              // Decode
+              colorkey[1] = decodeURI(colorkey[1])
+              var input = $('body').find('input[name="'+colorkey[0]+'"]')
+              // console.log(input)
+              input.val(colorkey[1])
+              input.attr('color', colorkey[1])
+              input.parent().css({
+                "background-color" : colorkey[1]
+              })
+              input.parent().find('.hex').text(colorkey[1])
+            }
+            console.log(parts)
+          } else {
+            colorBoxes.each(function(){
+              var input = $(this).find('input[type="color"]')
+              var label = $(this).find('.hex').text(input.val())
+              $(this).css({
+                "background-color" : input.val()
+              })
+            })
+          }
+
+        }
+        setup();
+
+        $('.color').on('click', function(e){
+          var input = $(this).find('.color-input')
+          input.spectrum("toggle");
+          return false;
+        })
+
+        $(".color-input").spectrum({
+          preferredFormat: "hex",
+          // showButtons: false,
+          showInitial: true,
+          showAlpha: true,
+          showInput: true,
+          showPalette:true,
+          change: function(color) {
+            if (color._a < 1) {
+              var newColor = color.toRgbString()
+            } else {
+              var newColor = color.toHexString();
+            }
+            $(this).parent().css('background-color', newColor)
+            $(this).parent().find('.hex').text(newColor)
+            $(this).attr('color', newColor)
+            saveObject()
+          },
+          move: function(color) {
+            if (color._a < 1) {
+              var newColor = color.toRgbString()
+            } else {
+              var newColor = color.toHexString();
+            }
+            $(this).parent().css('background-color', newColor)
+            $(this).parent().find('.hex').text(newColor)
+            $(this).attr('color', newColor)
+          }
+        });
+
+
+      });
+
+
+    </script>
+
+  </body>
+</html>
